@@ -13,3 +13,7 @@
 # npm i dotenv
 
 # npm i -D @types/dotenv
+
+# npm i mongoose
+
+# npm i -D @types/mongoose
