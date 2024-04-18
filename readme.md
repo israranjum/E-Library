@@ -6,4 +6,10 @@
 
 # npm init @eslint/config
 
-#
+# npm i express
+
+# npm i -D @types/express
+
+# npm i dotenv
+
+# npm i -D @types/dotenv
