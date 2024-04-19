@@ -17,3 +17,7 @@
 # npm i mongoose
 
 # npm i -D @types/mongoose
+
+# npm i http-errors
+
+# npm i -D @types/http-errors

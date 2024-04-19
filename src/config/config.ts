@@ -3,7 +3,8 @@ import { config as conf } from "dotenv"
 conf()
 const _config = {
     port: process.env.PORT,
-    dataBaseUrl: process.env.MONGODB_URI
+    dataBaseUrl: process.env.MONGODB_URI,
+    env: process.env.NODE_ENV
 
 }
 
