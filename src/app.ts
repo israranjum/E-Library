@@ -1,5 +1,6 @@
 import express, { NextFunction, Request, Response } from "express";
 import globalErrorHandler from "./middlewares/globalErrorHandler";
+import userRouter from "./user/userRouter";
 
 
 const app = express();
@@ -22,7 +23,7 @@ app.get("/", (req, res) => {
 })
 
 
-// global error handler
+app.use("/api/users", userRouter)
 
 
 
