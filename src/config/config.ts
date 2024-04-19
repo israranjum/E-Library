@@ -4,7 +4,8 @@ conf()
 const _config = {
     port: process.env.PORT,
     dataBaseUrl: process.env.MONGODB_URI,
-    env: process.env.NODE_ENV
+    env: process.env.NODE_ENV,
+    jwtSecret: process.env.JWT_SECRET
 
 }
 

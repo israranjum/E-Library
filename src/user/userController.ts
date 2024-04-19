@@ -1,6 +1,9 @@
 import { Response, Request, NextFunction } from "express"
 import createHttpError from "http-errors"
 import userModel from "./userModel"
+import bcrypt from "bcrypt"
+import { sign } from "jsonwebtoken"
+import { config } from "../config/config"
 
 
 const createUser = async (req: Request, res: Response, next: NextFunction) => {
@@ -13,13 +16,23 @@ const createUser = async (req: Request, res: Response, next: NextFunction) => {
     }
     // Database Call
     const user = await userModel.findOne({ email });
-    if(user){
+    if (user) {
         const error = createHttpError(409, "User already exists with this email")
         return next(error)
     }
 
+    // Password hashing
+    const hashedPassword = await bcrypt.hash(password, 10)
 
-    // Process
+    const newUser = await userModel.create({ name, email, password: hashedPassword })
+
+    // Token Generation JWT
+    const token = sign({ sub: newUser._id }, config.jwtSecret as string, { expiresIn: "7d" })
+
+
+
+
+
 
     // Response
 
@@ -27,7 +40,7 @@ const createUser = async (req: Request, res: Response, next: NextFunction) => {
 
 
 
-    res.json({ message: "User registered" })
+    res.json({ accessToken: token })
 }
 
 export { createUser }
