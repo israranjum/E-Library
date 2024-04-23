@@ -33,3 +33,5 @@
 # npm i multer
 
 # npm i -D @types/multer
+
+# npm install cloudinary
