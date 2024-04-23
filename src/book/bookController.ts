@@ -83,5 +83,82 @@ const createBook = async (req: Request, res: Response, next: NextFunction) => {
 
 }
 
+const updateBook = async (req: Request, res: Response, next: NextFunction) => {
+    const { title, genre } = req.body
+    const bookId = req.params.bookId;
 
-export { createBook }
+    const book = await bookModel.findOne({ _id: bookId });
+
+    if (!book) {
+        return next(createHttpError(404, "Book Not Found"))
+    }
+
+    const _req = req as AuthRequest
+    if (book.author.toString() !== _req.userId) {
+        return next(createHttpError(403, "Unauthorized for update Books"))
+    }
+
+    const files = req.files as { [fieldname: string]: Express.Multer.File[] }
+    let completeCoverImage = "";
+    if (files.coverImage) {
+
+        const filename = files.coverImage[0].filename;
+        const convertMimeType = files.coverImage[0].mimetype.split("/").at(-1);
+
+        const filePath = path.resolve(__dirname, '../../public/data/uploads' + filename)
+
+        completeCoverImage = filename;
+        const uploadResult = await cloudinary.uploader.upload(filePath, {
+            filename_override: completeCoverImage,
+            folder: "book-covers",
+            format: convertMimeType
+        })
+
+        completeCoverImage = uploadResult.secure_url
+        await fs.promises.unlink(filePath)
+
+    }
+
+    let completeFileName = "";
+
+    if (files.file) {
+        const bookFilePath = path.resolve(__dirname, '../../public/data/uploads' + files.file[0].filename)
+
+        const bookFileName = files.filter[0].filename;
+        completeFileName = bookFileName
+
+        const uploadResultPdf = await cloudinary.uploader.upload(bookFilePath, {
+            resource_type: "raw",
+            filename_override: completeFileName,
+            folder: "book-pdfs",
+            format: "pdf"
+        })
+
+        completeFileName = uploadResultPdf.secure_url
+        await fs.promises.unlink(bookFilePath)
+
+    }
+
+    const updatedBook = await bookModel.findOneAndUpdate(
+        { _id: bookId },
+        {
+            title: title,
+            genre: genre,
+            coverImage: completeCoverImage ? completeCoverImage : book.coverImage,
+            file: completeFileName ? completeFileName : book.file
+        },
+        { new: true }
+    )
+
+    res.json(updatedBook)
+
+
+
+
+
+
+
+
+
+}
+export { createBook, updateBook } 
