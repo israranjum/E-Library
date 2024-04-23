@@ -161,4 +161,34 @@ const updateBook = async (req: Request, res: Response, next: NextFunction) => {
 
 
 }
-export { createBook, updateBook } 
+
+
+const listBooks = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        // todo : add pagination mongoose pagination library
+        const book = await bookModel.find()
+
+        res.json(book)
+    } catch (error) {
+        return next(createHttpError(500, "Error While Fetching Books"))
+    }
+
+}
+
+
+const getSingleBook = async (req: Request, res: Response, next: NextFunction) => {
+    const bookId = req.params.bookId;
+    try {
+        const book = await bookModel.findOne({ _id: bookId })
+        if (!book) {
+            return next(createHttpError(404, "Book Not Found"))
+        }
+        return res.json(book)
+
+
+    } catch (error) {
+        return next(createHttpError(500, "Error While getting a Book"))
+    }
+
+}
+export { createBook, updateBook, listBooks, getSingleBook } 
