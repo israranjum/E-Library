@@ -29,3 +29,7 @@
 # npm i jsonwebtoken
 
 # npm i -D @types/jsonwebtoken
+
+# npm i multer
+
+# npm i -D @types/multer
