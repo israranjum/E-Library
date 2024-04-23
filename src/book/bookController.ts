@@ -2,10 +2,12 @@ import { NextFunction, Request, Response } from "express";
 import cloudinary from "../config/cloudinary";
 import path from "node:path"
 import createHttpError from "http-errors";
+import bookModel from "./bookModel";
+import fs from "node:fs"
 
 const createBook = async (req: Request, res: Response, next: NextFunction) => {
-    console.log("file", req.files)
-
+    // console.log("file", req.files)
+    const { title, genre } = req.body
 
     // MimeType Created
     const files = req.files as { [fieldname: string]: Express.Multer.File[] }
@@ -23,7 +25,7 @@ const createBook = async (req: Request, res: Response, next: NextFunction) => {
             folder: "book-covers",
             format: coverImageMimeType
         })
-        console.log("uploadResult", uploadResult)
+
 
 
         // PDF Upload 
@@ -36,10 +38,38 @@ const createBook = async (req: Request, res: Response, next: NextFunction) => {
             format: "pdf"
         })
         console.log("bookFileUploadResult", bookFileUploadResult)
-        res.json({});
+        console.log("uploadResult", uploadResult)
+
+
+
+        const newBook = await bookModel.create({
+            title: req.body.title,
+            author: "66221684a83d4218c776e0c2",
+            genre: req.body.genre,
+            coverImage: uploadResult.secure_url,
+            file: bookFileUploadResult.secure_url
+        })
+
+
+
+        // Delete temp Files
+
+        try {
+            await fs.promises.unlink(filePath)
+            await fs.promises.unlink(bookFilePath)
+        } catch (error) {
+            console.log("Error While Deleting Temp Files", error)
+        }
+
+
+
+
+
+
+        res.status(201).json({ id: newBook._id });
 
     } catch (error) {
-       return next(createHttpError(500, "Error While Uploading Files"))
+        return next(createHttpError(500, "Error While Uploading Files"))
     }
 
 
