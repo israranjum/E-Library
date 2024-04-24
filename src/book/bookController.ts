@@ -41,7 +41,6 @@ const createBook = async (req: Request, res: Response, next: NextFunction) => {
         // console.log("bookFileUploadResult", bookFileUploadResult)
         // console.log("uploadResult", uploadResult)
 
-
         const _req = req as AuthRequest
         const newBook = await bookModel.create({
             title: req.body.title,
@@ -51,9 +50,7 @@ const createBook = async (req: Request, res: Response, next: NextFunction) => {
             file: bookFileUploadResult.secure_url
         })
 
-
-
-        // Delete temp Files
+      // Delete temp Files
 
         try {
             await fs.promises.unlink(filePath)
@@ -62,24 +59,11 @@ const createBook = async (req: Request, res: Response, next: NextFunction) => {
             console.log("Error While Deleting Temp Files", error)
         }
 
-
-
-
-
-
         res.status(201).json({ id: newBook._id });
 
     } catch (error) {
         return next(createHttpError(500, "Error While Uploading Files"))
     }
-
-
-
-
-
-
-
-
 
 }
 
@@ -191,4 +175,26 @@ const getSingleBook = async (req: Request, res: Response, next: NextFunction) =>
     }
 
 }
-export { createBook, updateBook, listBooks, getSingleBook } 
+
+const deleteBook = async (req: Request, res: Response, next: NextFunction) => {
+    const bookId = req.params.bookId;
+
+    const book = await bookModel.findOne({ _id: bookId });
+    if (!book) {
+        return next(createHttpError(404, "Book Not Found"))
+    }
+
+    // Check Access 
+    const _req = req as AuthRequest
+    if (book.author.toString() !== _req.userId) {
+        return next(createHttpError(403, "Unauthorized for delete Books"))
+    }
+
+    const coverFileSplits = book.coverImage.split("/");
+    // await cloudinary.uploader.destroy()
+
+    return res.json({})
+
+}
+
+export { createBook, updateBook, listBooks, getSingleBook, deleteBook } 
