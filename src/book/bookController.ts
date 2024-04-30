@@ -5,6 +5,7 @@ import createHttpError from "http-errors";
 import bookModel from "./bookModel";
 import fs from "node:fs"
 import { AuthRequest } from "../middlewares/authenticate";
+import { Book } from "./bookTypes";
 
 const createBook = async (req: Request, res: Response, next: NextFunction) => {
     // console.log("file", req.files)
@@ -50,7 +51,7 @@ const createBook = async (req: Request, res: Response, next: NextFunction) => {
             file: bookFileUploadResult.secure_url
         })
 
-      // Delete temp Files
+        // Delete temp Files
 
         try {
             await fs.promises.unlink(filePath)
@@ -190,10 +191,21 @@ const deleteBook = async (req: Request, res: Response, next: NextFunction) => {
         return next(createHttpError(403, "Unauthorized for delete Books"))
     }
 
-    const coverFileSplits = book.coverImage.split("/");
-    // await cloudinary.uploader.destroy()
 
-    return res.json({})
+    // Delete Cover Image
+    const coverFileSplits = book.coverImage.split("/");
+    const coverImagePublicId = coverFileSplits.at(-2) + "/" + (coverFileSplits.at(-1)?.split(".")?.at(-2));
+    console.log("coverImagePublicId", coverImagePublicId)
+
+    const bookFileSplits = book.file.split("/");
+    const bookFilePublicId = bookFileSplits.at(-2) + "/" + bookFileSplits.at(-1);
+    await cloudinary.uploader.destroy(coverImagePublicId)
+    await cloudinary.uploader.destroy(bookFilePublicId, { resource_type: "raw" });
+
+    // Delete Book
+    await bookModel.deleteOne({ _id: bookId });
+
+    return res.sendStatus(204)
 
 }
 
