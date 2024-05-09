@@ -8,7 +8,7 @@ import { AuthRequest } from "../middlewares/authenticate";
 import { Book } from "./bookTypes";
 
 const createBook = async (req: Request, res: Response, next: NextFunction) => {
-    // console.log("file", req.files)
+    // console.log("file", req.files
     const { title, genre } = req.body
 
     // MimeType Created
@@ -90,13 +90,13 @@ const updateBook = async (req: Request, res: Response, next: NextFunction) => {
         const filename = files.coverImage[0].filename;
         const convertMimeType = files.coverImage[0].mimetype.split("/").at(-1);
 
-        const filePath = path.resolve(__dirname, '../../public/data/uploads' + filename)
+        const filePath = path.resolve(__dirname, '../../public/data/uploads/' + filename)
 
         completeCoverImage = filename;
         const uploadResult = await cloudinary.uploader.upload(filePath, {
             filename_override: completeCoverImage,
             folder: "book-covers",
-            format: convertMimeType
+            // format: convertMimeType
         })
 
         completeCoverImage = uploadResult.secure_url
@@ -107,7 +107,7 @@ const updateBook = async (req: Request, res: Response, next: NextFunction) => {
     let completeFileName = "";
 
     if (files.file) {
-        const bookFilePath = path.resolve(__dirname, '../../public/data/uploads' + files.file[0].filename)
+        const bookFilePath = path.resolve(__dirname, '../../public/data/uploads/' + files.file[0].filename)
 
         const bookFileName = files.filter[0].filename;
         completeFileName = bookFileName
@@ -125,7 +125,9 @@ const updateBook = async (req: Request, res: Response, next: NextFunction) => {
     }
 
     const updatedBook = await bookModel.findOneAndUpdate(
+        // Filter
         { _id: bookId },
+        // Update
         {
             title: title,
             genre: genre,
